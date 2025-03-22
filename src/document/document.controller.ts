@@ -29,7 +29,7 @@ export class DocumentController {
 
   @Post("upload")
   @UseGuards(RolesGuard)  
-  @Roles(UserRole.EDITOR)
+  @Roles(UserRole.EDITOR, UserRole.ADMIN)
   @UseInterceptors(FileInterceptor("file"))
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
@@ -52,7 +52,7 @@ export class DocumentController {
 
   @Get(":id")
   @UseGuards(RolesGuard)  
-  @Roles(UserRole.VIEWER, UserRole.EDITOR)
+  @Roles(UserRole.VIEWER, UserRole.EDITOR, UserRole.ADMIN)
   async getFile(@Param("id") id: number): Promise<any> {
     Logger.log("Get file from s3 bucket with id " + id);
     return this.documentService.getFile(id);

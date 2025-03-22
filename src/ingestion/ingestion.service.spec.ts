@@ -1,24 +1,26 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { IngestionService } from './ingestion.service';
-import { Ingestion, IngestionStatus } from './entities/ingestion.entity';
-import { ClientProxy } from '@nestjs/microservices';
+import { Test, TestingModule } from "@nestjs/testing";
+import { IngestionService } from "./ingestion.service";
+import { Repository } from "typeorm";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { Ingestion } from "./entities/ingestion.entity";
+import { HttpException, HttpStatus, Logger } from "@nestjs/common";
 
-describe('IngestionService', () => {
+describe("IngestionService", () => {
   let service: IngestionService;
-  let repository: Repository<Ingestion>;
-  let pythonService: ClientProxy;
+  let ingestionRepository: Repository<Ingestion>;
 
-  const mockRepository = {
+  const mockIngestionRepository = {
     create: jest.fn(),
     save: jest.fn(),
-    find: jest.fn(),
     findOne: jest.fn(),
   };
 
-  const mockPythonService = {
-    emit: jest.fn(),
+  const mockIngestionEntity = {
+    documentId: "1234-5678",
+    userId: "user-123",
+    title: "Test Document",
+    status: "Processing",
+    message: "Ingestion in progress",
   };
 
   beforeEach(async () => {
@@ -27,72 +29,112 @@ describe('IngestionService', () => {
         IngestionService,
         {
           provide: getRepositoryToken(Ingestion),
-          useValue: mockRepository,
-        },
-        {
-          provide: 'PYTHON_SERVICE',
-          useValue: mockPythonService,
+          useValue: mockIngestionRepository,
         },
       ],
     }).compile();
 
     service = module.get<IngestionService>(IngestionService);
-    repository = module.get<Repository<Ingestion>>(getRepositoryToken(Ingestion));
-    pythonService = module.get<ClientProxy>('PYTHON_SERVICE');
+    ingestionRepository = module.get<Repository<Ingestion>>(
+      getRepositoryToken(Ingestion)
+    );
+
+    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
+  describe("triggerIngestion", () => {
+    it("should successfully trigger ingestion and return status", async () => {
+      mockIngestionRepository.create.mockReturnValue(mockIngestionEntity);
+      mockIngestionRepository.save.mockResolvedValue(mockIngestionEntity);
 
-  describe('create', () => {
-    const createIngestionDto = {
-      name: 'Test Ingestion',
-      description: 'Test Description',
-    };
+      const response = await service.triggerIngestion(
+        mockIngestionEntity.documentId,
+        mockIngestionEntity.userId,
+        mockIngestionEntity.title,
+        mockIngestionEntity.status,
+        mockIngestionEntity.message
+      );
 
-    const mockUser = { id: '1', email: 'test@example.com' };
-
-    it('should create a new ingestion and trigger Python service', async () => {
-      const ingestion = {
-        id: '1',
-        ...createIngestionDto,
-        status: IngestionStatus.PENDING,
-        initiatedBy: mockUser,
-      };
-
-      mockRepository.create.mockReturnValue(ingestion);
-      mockRepository.save.mockResolvedValue(ingestion);
-
-      // const result = await service.create(createIngestionDto, mockUser);
-
-      // expect(result).toEqual(ingestion);
-      expect(mockRepository.create).toHaveBeenCalled();
-      expect(mockRepository.save).toHaveBeenCalled();
-      expect(mockPythonService.emit).toHaveBeenCalledWith('start_ingestion', {
-        ingestionId: ingestion.id,
-        ...createIngestionDto,
+      expect(response).toEqual({
+        id: mockIngestionEntity.documentId,
+        message: "Ingestion is Processing.",
       });
+
+      expect(mockIngestionRepository.create).toHaveBeenCalledWith(
+        mockIngestionEntity
+      );
+      expect(mockIngestionRepository.save).toHaveBeenCalledWith(
+        mockIngestionEntity
+      );
+    });
+
+    it("should throw an error if ingestion fails", async () => {
+      mockIngestionRepository.save.mockRejectedValue(
+        new Error("Database error")
+      );
+
+      await expect(
+        service.triggerIngestion(
+          mockIngestionEntity.documentId,
+          mockIngestionEntity.userId,
+          mockIngestionEntity.title,
+          mockIngestionEntity.status,
+          mockIngestionEntity.message
+        )
+      ).rejects.toThrowError(
+        new HttpException(
+          { status: "Error", message: "Failed to ingestion status." },
+          HttpStatus.INTERNAL_SERVER_ERROR
+        )
+      );
     });
   });
 
-  describe('updateStatus', () => {
-    it('should update ingestion status', async () => {
-      const ingestion = {
-        id: '1',
-        status: IngestionStatus.PENDING,
-      };
+  describe("getIngestionStatus", () => {
+    it("should return ingestion status for a valid document ID", async () => {
+      mockIngestionRepository.findOne.mockResolvedValue(mockIngestionEntity);
 
-      mockRepository.findOne.mockResolvedValue(ingestion);
-      mockRepository.save.mockResolvedValue({
-        ...ingestion,
-        status: IngestionStatus.COMPLETED,
+      const result = await service.getIngestionStatus(
+        mockIngestionEntity.documentId
+      );
+
+      expect(result).toEqual({
+        documentId: mockIngestionEntity.documentId,
+        status: mockIngestionEntity.status,
       });
 
-      // const result = await service.updateStatus('1', IngestionStatus.COMPLETED);
+      expect(mockIngestionRepository.findOne).toHaveBeenCalledWith({
+        where: { documentId: mockIngestionEntity.documentId },
+      });
+    });
 
-      // expect(result.status).toBe(IngestionStatus.COMPLETED);
-      expect(mockRepository.save).toHaveBeenCalled();
+    it("should throw a not found error if the document does not exist", async () => {
+      mockIngestionRepository.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.getIngestionStatus("nonexistent-id")
+      ).rejects.toThrowError(
+        new HttpException(
+          { status: "Not Found", message: "Document does not exist." },
+          HttpStatus.NOT_FOUND
+        )
+      );
+    });
+
+    it("should throw an error if retrieving status fails", async () => {
+      mockIngestionRepository.findOne.mockRejectedValue(
+        new Error("Database error")
+      );
+
+      await expect(
+        service.getIngestionStatus("1234-5678")
+      ).rejects.toThrowError(
+        new HttpException(
+          { status: "Error", message: "Failed to retrieve ingestion status." },
+          HttpStatus.INTERNAL_SERVER_ERROR
+        )
+      );
     });
   });
 });

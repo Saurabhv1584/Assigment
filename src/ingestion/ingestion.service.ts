@@ -52,6 +52,9 @@ export class IngestionService {
       return { documentId: document.id, status: document.status };
     } catch (error) {
       Logger.error(`Error while retrieving ingestion status: ${error.message}`);
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new HttpException(
         { status: "Error", message: "Failed to retrieve ingestion status." },
         HttpStatus.INTERNAL_SERVER_ERROR,

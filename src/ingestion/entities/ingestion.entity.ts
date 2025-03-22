@@ -24,7 +24,7 @@ export class Ingestion {
   @Column({ default: 'Pending' })
   status: string;
 
-  @Column()
+  @Column({ default: ''})
   message: string;
 
   @CreateDateColumn()

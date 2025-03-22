@@ -21,7 +21,8 @@ export class UserService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
       const user = this.userRepository.create(createUserDto);
-      return await this.userRepository.save(user);
+      const response = await this.userRepository.save(user);
+      return response;
     } catch (error) {
       Logger.log(`Error creating user: ${error.message}`);
       throw new HttpException(
@@ -83,20 +84,27 @@ export class UserService {
   async findByEmail(email: string): Promise<User | null> {
     try {
       const user = await this.userRepository.findOne({ where: { email } });
+  
+      if (!user) {
+        throw new HttpException(
+          `User with email ${email} not found`,
+          HttpStatus.NOT_FOUND
+        );
+      }
+  
       return user;
     } catch (error) {
-      Logger.log("findByEmail error", error);
-
+      Logger.error("Error fetching user by email", error);
       if (error instanceof HttpException) {
         throw error;
       }
-
       throw new HttpException(
         "Failed to fetch user by email",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
+  
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<ReponseUserDto> {
     try {

@@ -43,7 +43,7 @@ export class UserController {
   @Get(':id')
   @UseGuards(RolesGuard)
   // @Roles(UserRole.ADMIN, UserRole.VIEWER)
-  @Roles(UserRole.VIEWER)
+  @Roles(UserRole.VIEWER, UserRole.EDITOR, UserRole.ADMIN)
   @ApiOperation({ summary : "Find user by ID"})
   @ApiOkResponse({
     description: "successfully find user by ID",
@@ -66,7 +66,7 @@ export class UserController {
 
   @Put(':id')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.EDITOR)
+  @Roles(UserRole.EDITOR, UserRole.ADMIN)
   @ApiOperation({ summary : "Update user by ID"})
   @ApiOkResponse({
     description: "successfully updated user by ID",
@@ -82,7 +82,7 @@ export class UserController {
     const user = await this.userService.update(id, updateUserDto);
     return new ResponseDto(
       HttpStatus.OK,
-      'User deatil updated successfully',
+      'User detail updated successfully',
       user,
     );
   }

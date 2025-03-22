@@ -1,10 +1,10 @@
 import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { IngestionService } from './ingestion.service';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
-import { JwtGuard } from 'src/auth/jwt/jwt.guard';
-import { RolesGuard } from 'src/auth/roles/roles.guard';
-import { UserRole } from 'src/user/entities/user.entity';
-import { Roles } from 'src/auth/roles/roles.decorator';
+import { JwtGuard } from '../auth/jwt/jwt.guard';
+import { RolesGuard } from '../auth/roles/roles.guard';
+import { UserRole } from '../user/entities/user.entity';
+import { Roles } from '../auth/roles/roles.decorator';
 
 @Controller('ingestion')
 @ApiBearerAuth('access-token')
