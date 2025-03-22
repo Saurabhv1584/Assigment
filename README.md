@@ -32,6 +32,13 @@ AWS_S3_BUCKET_NAME=s3-bucket-name
 
 ```
 
+## Start project in watch mode
+
+```
+npm run start:dev
+```
+
+
 ## Types of Users
 #### 1 Admin
     Can perform all the tasks
