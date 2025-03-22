@@ -35,10 +35,10 @@ export class IngestionService {
 
   // Get ingestion status
   // 
-  async getIngestionStatus(documentId: string): Promise<{ documentId: string; status: string }> {
+  async getIngestionStatus(id: string): Promise<{ documentId: string; status: string }> {
     try {
       const document = await this.ingestionRepository.findOne({
-        where: { id: documentId },
+        where: { id: id },
       });
   
       if (!document) {
@@ -47,8 +47,7 @@ export class IngestionService {
           HttpStatus.NOT_FOUND,
         );
       }
-  
-      Logger.log(`Retrieved ingestion status for document ID: ${documentId}`);
+      Logger.log(`Retrieved ingestion status for document ID: ${id}`);
       return { documentId: document.id, status: document.status };
     } catch (error) {
       Logger.error(`Error while retrieving ingestion status: ${error.message}`);

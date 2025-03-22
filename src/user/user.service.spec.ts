@@ -190,8 +190,8 @@ describe("UserService", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    const email = "teasdasdast@gmail.com";
     it("should return a user by email", async () => {
+      const email = "saurabh12@gmail.com";
       mockUserRepository.findOne.mockResolvedValue(createUser);
 
       const result = await service.findByEmail(email);
@@ -203,17 +203,19 @@ describe("UserService", () => {
     });
 
     it("should throw an error if user is not found", async () => {
+      const email = 'sau2@gmail.com'
       mockUserRepository.findOne.mockResolvedValue(null);
 
       await expect(service.findByEmail(email)).rejects.toThrowError(
         new HttpException(
-          "User with email teasdasdast@gmail.com not found",
+          "User with email sau2@gmail.com not found",
           HttpStatus.NOT_FOUND
         )
       );
     });
 
     it("should throw an error if there is an internal error", async () => {
+      const email = 'sabh12@gmail.com'
       mockUserRepository.findOne.mockRejectedValue(new Error("Database error"));
 
       await expect(service.findByEmail(email)).rejects.toThrowError(

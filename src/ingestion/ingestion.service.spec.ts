@@ -93,48 +93,60 @@ describe("IngestionService", () => {
 
   describe("getIngestionStatus", () => {
     it("should return ingestion status for a valid document ID", async () => {
-      mockIngestionRepository.findOne.mockResolvedValue(mockIngestionEntity);
-
-      const result = await service.getIngestionStatus(
-        mockIngestionEntity.documentId
-      );
-
+      const mockIngestionEntity = {
+        id: "ec46d24a-ebe1-4296-9350-df9301d3c825",
+        documentId: "key",
+        status: "processing",
+      };
+  
+      // Mock findOne to return the valid entity
+      mockIngestionRepository.findOne = jest.fn().mockResolvedValue(mockIngestionEntity);
+  
+      const result = await service.getIngestionStatus(mockIngestionEntity.id);
+  
+      expect(mockIngestionRepository.findOne).toHaveBeenCalledWith({
+        where: { id: mockIngestionEntity.id },
+      });
+  
       expect(result).toEqual({
-        documentId: mockIngestionEntity.documentId,
+        documentId: mockIngestionEntity.id,
         status: mockIngestionEntity.status,
       });
-
-      expect(mockIngestionRepository.findOne).toHaveBeenCalledWith({
-        where: { documentId: mockIngestionEntity.documentId },
-      });
     });
-
-    it("should throw a not found error if the document does not exist", async () => {
-      mockIngestionRepository.findOne.mockResolvedValue(null);
-
-      await expect(
-        service.getIngestionStatus("nonexistent-id")
-      ).rejects.toThrowError(
+  
+    it("should throw Not Found exception if document ID is not found", async () => {
+      // Mock findOne to return null
+      mockIngestionRepository.findOne = jest.fn().mockResolvedValue(null);
+  
+      await expect(service.getIngestionStatus("nonexistent-id")).rejects.toThrowError(
         new HttpException(
           { status: "Not Found", message: "Document does not exist." },
-          HttpStatus.NOT_FOUND
-        )
+          HttpStatus.NOT_FOUND,
+        ),
       );
+  
+      expect(mockIngestionRepository.findOne).toHaveBeenCalledWith({
+        where: { id: "nonexistent-id" },
+      });
     });
-
-    it("should throw an error if retrieving status fails", async () => {
-      mockIngestionRepository.findOne.mockRejectedValue(
-        new Error("Database error")
-      );
-
-      await expect(
-        service.getIngestionStatus("1234-5678")
-      ).rejects.toThrowError(
+  
+    it("should handle database errors gracefully", async () => {
+      // Mock findOne to throw an error
+      mockIngestionRepository.findOne = jest
+        .fn()
+        .mockRejectedValue(new Error("Database error"));
+  
+      await expect(service.getIngestionStatus("1234-5678")).rejects.toThrowError(
         new HttpException(
           { status: "Error", message: "Failed to retrieve ingestion status." },
-          HttpStatus.INTERNAL_SERVER_ERROR
-        )
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        ),
       );
+  
+      expect(mockIngestionRepository.findOne).toHaveBeenCalledWith({
+        where: { id: "1234-5678" },
+      });
     });
   });
+  
 });
