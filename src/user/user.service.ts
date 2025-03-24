@@ -94,7 +94,7 @@ export class UserService {
   
       return user;
     } catch (error) {
-      Logger.error("Error fetching user by email", error);
+      Logger.log("Error fetching user by email", error);
       if (error instanceof HttpException) {
         throw error;
       }

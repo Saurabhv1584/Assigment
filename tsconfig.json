@@ -5,6 +5,9 @@
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "paths": {
+      "src/*": ["./src/*"]
+    },
     "allowSyntheticDefaultImports": true,
     "target": "es2017",
     "sourceMap": true,

@@ -1,12 +1,12 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { AuthService } from "./auth.service";
-import { UserService } from "../user/user.service";
-import { JwtService } from "./jwt/jwt.service";
-import { RegisterDto } from "./dto/register.dto";
-import { LoginDto } from "./dto/login.dto";
+import { AuthService } from "src/auth/auth.service";
+import { UserService } from "src/user/user.service";
+import { JwtService } from "src/auth/jwt/jwt.service";
+import { RegisterDto } from "src/auth/dto/register.dto";
+import { LoginDto } from "src/auth/dto/login.dto";
 import { HttpException, HttpStatus } from "@nestjs/common";
 import * as bcrypt from "bcrypt";
-import { UserRole } from "../../src/user/entities/user.entity";
+import { UserRole } from "src/user/entities/user.entity";
 
 describe("AuthService", () => {
   let authService: AuthService;

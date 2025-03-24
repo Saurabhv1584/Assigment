@@ -25,7 +25,7 @@ export class IngestionService {
   
       return { id: documentId , message: `Ingestion is ${status}.` };
     } catch (error) {
-      Logger.error(`Error while ingestion: ${error.message}`);
+      Logger.log(`Error while ingestion: ${error.message}`);
       throw new HttpException(
         { status: "Error", message: "Failed to ingestion status." },
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -50,7 +50,7 @@ export class IngestionService {
       Logger.log(`Retrieved ingestion status for document ID: ${id}`);
       return { documentId: document.id, status: document.status };
     } catch (error) {
-      Logger.error(`Error while retrieving ingestion status: ${error.message}`);
+      Logger.log(`Error while retrieving ingestion status: ${error.message}`);
       if (error instanceof HttpException) {
         throw error;
       }

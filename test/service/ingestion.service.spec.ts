@@ -1,8 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { IngestionService } from "./ingestion.service";
+import { IngestionService } from "src/ingestion/ingestion.service";
 import { Repository } from "typeorm";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Ingestion } from "./entities/ingestion.entity";
+import { Ingestion } from "src/ingestion/entities/ingestion.entity";
 import { HttpException, HttpStatus, Logger } from "@nestjs/common";
 
 describe("IngestionService", () => {
@@ -117,18 +117,23 @@ describe("IngestionService", () => {
     it("should throw Not Found exception if document ID is not found", async () => {
       // Mock findOne to return null
       mockIngestionRepository.findOne = jest.fn().mockResolvedValue(null);
-  
-      await expect(service.getIngestionStatus("nonexistent-id")).rejects.toThrowError(
+    
+      // Act: Call the service method
+      await expect(
+        service.getIngestionStatus("ec46d24a-ebe1-4296-9350-df9301d3c820")
+      ).rejects.toThrowError(
         new HttpException(
           { status: "Not Found", message: "Document does not exist." },
           HttpStatus.NOT_FOUND,
         ),
       );
-  
+    
+      // Assert: Check if findOne was called with the expected argument
       expect(mockIngestionRepository.findOne).toHaveBeenCalledWith({
-        where: { id: "nonexistent-id" },
+        where: { id: "ec46d24a-ebe1-4296-9350-df9301d3c820" },
       });
     });
+    
   
     it("should handle database errors gracefully", async () => {
       // Mock findOne to throw an error

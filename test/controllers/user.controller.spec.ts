@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserController } from './user.controller';
-import { UserService } from './user.service';
-import { ResponseDto } from './dto/reponse.dto';
-import { User, UserRole } from './entities/user.entity';
+import { UserController } from 'src/user/user.controller';
+import { UserService } from 'src/user/user.service';
+import { ResponseDto } from 'src/user/dto/reponse.dto';
 import { HttpStatus } from '@nestjs/common';
-import { JwtService } from '../auth/jwt/jwt.service';
-import { UserModule } from './user.module';
+import { JwtService } from 'src/auth/jwt/jwt.service';
+import { UserModule } from 'src/user/user.module';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { User, UserRole } from 'src/user/entities/user.entity';
 
-jest.mock('./user.service');
+jest.mock('../../src/user/user.service.ts');
 
 describe('UserController', () => {
   let controller: UserController;

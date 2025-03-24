@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { IngestionController } from './ingestion.controller';
-import { IngestionService } from './ingestion.service';
-import { Ingestion } from './entities/ingestion.entity';
+import { IngestionController } from 'src/ingestion/ingestion.controller';
+import { IngestionService } from 'src/ingestion/ingestion.service';
+import { Ingestion } from 'src/ingestion/entities/ingestion.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { JwtService } from '../auth/jwt/jwt.service';
+import { JwtService } from 'src/auth/jwt/jwt.service';
 
 describe('IngestionController', () => {
   let controller: IngestionController;
