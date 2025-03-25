@@ -70,8 +70,11 @@ describe("DocumentService", () => {
   it("should be defined", () => {
     expect(service).toBeDefined();
   });
-  
+
   describe("uploadFile", () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
     const file: Express.Multer.File = {
       originalname: "test-file.txt",
       buffer: Buffer.from("dummy file content"),
@@ -178,6 +181,9 @@ describe("DocumentService", () => {
   });
 
   describe("listFiles", () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
     it("should return a list of files from S3", async () => {
       process.env.AWS_S3_BUCKET_NAME = "my-s3-dummy-bucket";
 
@@ -232,6 +238,9 @@ describe("DocumentService", () => {
   });
 
   describe("getFile", () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
     it("should return a file from S3", async () => {
       // ✅ Mock environment variable before calling the service
       process.env.AWS_S3_BUCKET_NAME = "my-s3-dummy-bucket";

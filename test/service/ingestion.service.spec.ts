@@ -43,6 +43,10 @@ describe("IngestionService", () => {
     jest.resetAllMocks();
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe("triggerIngestion", () => {
     it("should successfully trigger ingestion and return status", async () => {
       mockIngestionRepository.create.mockReturnValue(mockIngestionEntity);
@@ -92,6 +96,9 @@ describe("IngestionService", () => {
   });
 
   describe("getIngestionStatus", () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
     it("should return ingestion status for a valid document ID", async () => {
       const mockIngestionEntity = {
         id: "ec46d24a-ebe1-4296-9350-df9301d3c825",
