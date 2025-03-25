@@ -22,7 +22,7 @@ export class DocumentService {
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
       region: process.env.AWS_REGION,
     });
-    this.bucketName = process.env.AWS_S3_BUCKET_NAME;
+    this.bucketName = process.env.AWS_S3_BUCKET_NAME || "default-bucket";
   }
 
   async uploadFile(
@@ -87,36 +87,11 @@ export class DocumentService {
     }
   }
 
-  async create(
-    title: string,
-    key: string,
-    url: string,
-    createdBy: string
-  ): Promise<Document> {
-    try {
-      // Create the document metadata
-      const document = this.documentRepository.create({
-        title,
-        key,
-        url,
-        createdBy,
-      });
-
-      // Save the document to the database
-      return await this.documentRepository.save(document);
-    } catch (error) {
-      throw new HttpException(
-        `Document creation failed: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
   async listFiles(): Promise<any[]> {
     try {
       const params = {
         Bucket: this.bucketName,
-      };
+      };  
 
       // Fetch the list of objects from S3
       const data = await this.s3.listObjectsV2(params).promise();
@@ -184,7 +159,6 @@ export class DocumentService {
         Bucket: this.bucketName,
         Key: document.key,
       };
-
       await this.s3.deleteObject(params).promise();
       Logger.log(`File deleted from S3: ${document.key}`);
 
