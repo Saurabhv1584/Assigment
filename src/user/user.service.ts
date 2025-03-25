@@ -80,7 +80,6 @@ export class UserService {
     }
   }
 
-  // auth
   async findByEmail(email: string): Promise<User | null> {
     try {
       const user = await this.userRepository.findOne({ where: { email } });

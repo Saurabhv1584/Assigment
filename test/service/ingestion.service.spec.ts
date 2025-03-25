@@ -106,7 +106,6 @@ describe("IngestionService", () => {
         status: "processing",
       };
   
-      // Mock findOne to return the valid entity
       mockIngestionRepository.findOne = jest.fn().mockResolvedValue(mockIngestionEntity);
   
       const result = await service.getIngestionStatus(mockIngestionEntity.id);
@@ -122,10 +121,8 @@ describe("IngestionService", () => {
     });
   
     it("should throw Not Found exception if document ID is not found", async () => {
-      // Mock findOne to return null
       mockIngestionRepository.findOne = jest.fn().mockResolvedValue(null);
     
-      // Act: Call the service method
       await expect(
         service.getIngestionStatus("ec46d24a-ebe1-4296-9350-df9301d3c820")
       ).rejects.toThrowError(
@@ -135,7 +132,6 @@ describe("IngestionService", () => {
         ),
       );
     
-      // Assert: Check if findOne was called with the expected argument
       expect(mockIngestionRepository.findOne).toHaveBeenCalledWith({
         where: { id: "ec46d24a-ebe1-4296-9350-df9301d3c820" },
       });
@@ -143,7 +139,6 @@ describe("IngestionService", () => {
     
   
     it("should handle database errors gracefully", async () => {
-      // Mock findOne to throw an error
       mockIngestionRepository.findOne = jest
         .fn()
         .mockRejectedValue(new Error("Database error"));

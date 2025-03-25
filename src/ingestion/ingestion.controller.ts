@@ -12,12 +12,6 @@ import { Roles } from '../auth/roles/roles.decorator';
 export class IngestionController {
   constructor(private readonly ingestionService: IngestionService) {}
 
-  // Trigger Ingestion
-  // @Post(':id')
-  // async trigger(@Param('id') id: number) {
-  //   return this.ingestionService.triggerIngestion(id);
-  // }
-
   // Get Ingestion Status
   @Get('status/:id')
   @UseGuards(RolesGuard)  

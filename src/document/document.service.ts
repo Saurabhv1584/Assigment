@@ -96,7 +96,7 @@ export class DocumentService {
       // Fetch the list of objects from S3
       const data = await this.s3.listObjectsV2(params).promise();
 
-      // Map the list of S3 objects to a simplified format
+      // Map the list of S3 objects 
       const files = data.Contents.map((item) => ({
         key: item.Key,
         lastModified: item.LastModified,
@@ -114,14 +114,12 @@ export class DocumentService {
   }
 
   async getFile(id: number): Promise<any> {
-    // Step 1: Fetch the document from the database using the ID
     const document = await this.documentRepository.findOne({ where: { id } });
     if (!document) {
       throw new HttpException("Document not found", HttpStatus.NOT_FOUND);
     }
 
     try {
-      // Step 2: Get the file from S3 using the document key
       const params = {
         Bucket: this.bucketName,
         Key: document.key,
@@ -147,14 +145,12 @@ export class DocumentService {
   }
 
   async deleteFile(id: number): Promise<void> {
-    // Step 1: Find the document in the database
     const document = await this.documentRepository.findOne({ where: { id } });
     if (!document) {
       throw new HttpException("Document not found", HttpStatus.NOT_FOUND);
     }
 
     try {
-      // Step 2: Delete the file from S3
       const params = {
         Bucket: this.bucketName,
         Key: document.key,
@@ -162,7 +158,6 @@ export class DocumentService {
       await this.s3.deleteObject(params).promise();
       Logger.log(`File deleted from S3: ${document.key}`);
 
-      // Step 3: Delete the document record from the database
       await this.documentRepository.delete(id);
       Logger.log(`Document deleted from database: ${id}`);
     } catch (error) {

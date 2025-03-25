@@ -129,7 +129,7 @@ describe('UserController', () => {
           };
           const updatedUser = {
             ...existingUser,
-            roles: [UserRole.VIEWER, UserRole.EDITOR, UserRole.ADMIN], // Merged roles
+            roles: [UserRole.VIEWER, UserRole.EDITOR, UserRole.ADMIN],
           };
       jest.spyOn(service, 'updateRole').mockResolvedValue(updatedUser);
 

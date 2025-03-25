@@ -34,7 +34,6 @@ export class IngestionService {
   }
 
   // Get ingestion status
-  // 
   async getIngestionStatus(id: string): Promise<{ documentId: string; status: string }> {
     try {
       const document = await this.ingestionRepository.findOne({

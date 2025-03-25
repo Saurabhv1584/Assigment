@@ -242,7 +242,6 @@ describe("DocumentService", () => {
       jest.clearAllMocks();
     });
     it("should return a file from S3", async () => {
-      // ✅ Mock environment variable before calling the service
       process.env.AWS_S3_BUCKET_NAME = "my-s3-dummy-bucket";
 
       const id = 1;
